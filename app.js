@@ -1,6 +1,7 @@
 const app = require("express")();
 const http = require("http").Server(app);
 const mysql = require('mysql');
+
 var connection = mysql.createConnection({
   host: 'localhost',
   user: 'android',
@@ -14,14 +15,31 @@ connection.connect(function(err){
 });
 
 app.get("/INSERT_USER", function (req, res) {
-    if (req.query.nom == null) {
+    if (req.query.nom == null || req.query.nom.length < 3) {
         res.send("err");
         return;
     }
-    var sql = "INSERT INTO user (nom) VALUES ('" + req.query.nom + "')";
+    var sql = "SELECT * FROM user WHERE nom = '" + req.query.nom + "'";
     connection.query(sql, function (err, result) {
-        if (err) throw err;
-        res.send("ok");
+        try{
+            if (err) throw err;
+            if (result.length == 0){   
+                sql = "INSERT INTO user (nom) VALUES ('" + req.query.nom + "')";
+                connection.query(sql, function (err, result) {
+                    try{
+                        if (err) throw err;
+                        res.send("ok");
+                    }catch(err){
+                        res.send("err");
+                    }
+                });
+            }
+            else{
+                res.send("ok");
+            }
+        }catch(err){
+            res.send("err");
+        }
     });
 });
 
@@ -33,23 +51,34 @@ app.get("/INSERT_SCORE", function (req, res) {
     }
     var sql = "UPDATE user SET dernier_score = '" + req.query.score + "' WHERE nom = '" + req.query.nom + "'";
     connection.query(sql, function (err, result) {
-        if (err) throw err;
+        try{
+            if (err) throw err;
+            res.send("ok");
+        }catch(err){
+            res.send("err");
+        }
     });
-    var sql = "UPDATE user SET top_score = '" + req.query.score + "' WHERE nom = '" + req.query.nom + "' AND top_score < " + req.query.score;
+    sql = "UPDATE user SET top_score = '" + req.query.score + "' WHERE nom = '" + req.query.nom + "' AND top_score < " + req.query.score;
     connection.query(sql, function (err, result) {
-        if (err) throw err;
-        res.send("ok");
+        try{
+            if (err) throw err;
+        }catch(err){
+        }
     });
 });
 
 app.get("/TOP_SCORE", function (req, res) {
-    var sql = "SELECT nom, top_score FROM user ORDER BY top_score DESC";
+    var sql = "SELECT nom, top_score FROM user ORDER BY top_score DESC LIMIT 5";
     connection.query(sql, function (err, result) {
-        if (err) throw err;
-        res.json(result);
+        try{
+            if (err) throw err;
+            res.json(result);
+        }catch(err){
+            res.send("err");
+        }
     });
 });
 
 http.listen(3000, function () {
-    console.log("listening on *:3000");
+    console.log("listening on localhost:3000");
 });
