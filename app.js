@@ -4,9 +4,9 @@ const mysql = require('mysql');
 
 var connection = mysql.createConnection({
   host: 'localhost',
-  user: 'android',
-  password: 'info705',
-  database: 'info705'
+  user: 'mobile',
+  password: 'info701',
+  database: 'info701'
 });
 
 //Connect le serveur a la base de donée
