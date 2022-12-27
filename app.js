@@ -9,11 +9,13 @@ var connection = mysql.createConnection({
   database: 'info705'
 });
 
+//Connect le serveur a la base de donée
 connection.connect(function(err){
     if (err) throw err;
     console.log("Connected!");
 });
 
+//Ajout d'un nouvel utilisateur
 app.get("/INSERT_USER", function (req, res) {
     if (req.query.nom == null || req.query.nom.length < 3) {
         res.send("err");
@@ -43,7 +45,7 @@ app.get("/INSERT_USER", function (req, res) {
     });
 });
 
-
+//Ajout d'un score
 app.get("/INSERT_SCORE", function (req, res) {
     if (req.query.nom == null || req.query.score == null) {
         res.send("err");
@@ -67,6 +69,8 @@ app.get("/INSERT_SCORE", function (req, res) {
     });
 });
 
+
+//Envoie les 5 meilleurs scores
 app.get("/TOP_SCORE", function (req, res) {
     var sql = "SELECT nom, top_score FROM user ORDER BY top_score DESC LIMIT 5";
     connection.query(sql, function (err, result) {
@@ -79,6 +83,7 @@ app.get("/TOP_SCORE", function (req, res) {
     });
 });
 
+//Lance le serveur
 http.listen(3000, function () {
     console.log("listening on localhost:3000");
 });
